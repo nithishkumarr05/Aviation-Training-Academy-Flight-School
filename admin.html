@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, height=device-height, viewport-fit=cover">
+    <title>Admin Dashboard | SkyWings Aviation Academy</title>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50' y='75' font-size='75' text-anchor='middle'%3E✈️%3C/text%3E%3C/svg%3E">
+    <script src="tailwind.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            const direction = localStorage.getItem('dir') || 'ltr';
+            document.documentElement.setAttribute('dir', direction);
+        })();
+
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'aviation-teal': '#0F4C5C',
+                        'aviation-gold': '#D4AF37',
+                        'aviation-light': '#E8F0FE',
+                        'aviation-dark': '#0B1E26',
+                        'midnight-bg': '#0A1128',
+                        'midnight-sec': '#141E3A',
+                        'midnight-card': '#1E2A4F',
+                    },
+                    fontFamily: {
+                        sans: ['Jost', 'sans-serif'],
+                        serif: ['"Cormorant Garamond"', 'serif'],
+                        display: ['"Cormorant Garamond"', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --bg-color: #E8F0FE;
+            --dash-bg: #E8F0FE;
+            --text-main: #0B1E26;
+            --text-muted: #64748B;
+            --accent-color: #D4AF37;
+            --accent-dark: #B8960F;
+            --border-color: rgba(212, 175, 55, 0.25);
+            --sidebar-bg: #0F4C5C;
+            --sidebar-text: #F0F6FA;
+            --sidebar-muted: #94A3B8;
+            --sidebar-hover: rgba(212, 175, 55, 0.1);
+            --sidebar-active: rgba(212, 175, 55, 0.15);
+            --sidebar-border: rgba(212, 175, 55, 0.2);
+            --card-bg: #FFFFFF;
+            --radius: 24px;
+            --shadow: 0 10px 30px -10px rgba(15, 76, 92, 0.08);
+            --shadow-hover: 0 20px 40px rgba(15, 76, 92, 0.12);
+            --btn-shadow: 0 4px 14px 0 rgba(212, 175, 55, 0.3);
+        }
+
+        .dark {
+            --bg-color: #0A1128;
+            --dash-bg: #0A1128;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border-color: rgba(46, 63, 109, 0.5);
+            --card-bg: #1E2A4F;
+            --sidebar-bg: #0A1128;
+            --sidebar-text: #F8FAFC;
+            --sidebar-muted: #94A3B8;
+            --sidebar-hover: rgba(212, 175, 55, 0.1);
+            --sidebar-active: rgba(212, 175, 55, 0.15);
+            --sidebar-border: rgba(212, 175, 55, 0.15);
+            --shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+            --shadow-hover: 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html, body {
+            min-height: 100%;
+            min-height: 100dvh;
+            overflow-x: hidden;
+            background-color: var(--dash-bg);
+            color: var(--text-main);
+            transition: background-color 0.3s, color 0.3s;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Jost', sans-serif;
+        }
+
+        .dark body {
+            background-color: #0A1128;
+            color: #F8FAFC;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+        }
+        .dark .glass-card {
+            background: rgba(30, 42, 79, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .dash-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+        .dash-card:hover {
+            box-shadow: var(--shadow-hover);
+        }
+
+        [dir="rtl"] { text-align: right; }
+        [dir="rtl"] .ml-auto { margin-right: auto; margin-left: 0; }
+        [dir="rtl"] .mr-3 { margin-left: 0.75rem; margin-right: 0; }
+        [dir="rtl"] .ml-3 { margin-right: 0.75rem; margin-left: 0; }
+        [dir="rtl"] .space-x-reverse > :not([hidden]) ~ :not([hidden]) { --tw-space-x-reverse: 1; }
+
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--sidebar-border);
+            height: 100dvh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 24px 16px;
+            overflow-y: auto;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s, border-color 0.3s;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            color: var(--sidebar-text);
+        }
+        [dir="rtl"] .sidebar { left: auto; right: 0; border-right: none; border-left: 1px solid var(--sidebar-border); }
+
+        .main-wrapper {
+            margin-left: 280px;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            transition: margin 0.3s ease;
+            width: calc(100% - 280px);
+        }
+        [dir="rtl"] .main-wrapper { margin-left: 0; margin-right: 280px; }
+
+        .topbar {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            background: var(--dash-bg);
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            transition: background-color 0.3s;
+        }
+
+        .content-area {
+            padding: 0 32px 32px 32px;
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        /* ===== RESPONSIVE BREAKPOINTS ===== */
+        
+        /* Tablets & small laptops */
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            [dir="rtl"] .sidebar { transform: translateX(100%); }
+            [dir="rtl"] .sidebar.active { transform: translateX(0); }
+            .main-wrapper { margin-left: 0 !important; margin-right: 0 !important; width: 100%; }
+            .topbar { padding: 0 20px; height: 72px; }
+            .content-area { padding: 0 20px 24px 20px; }
+            .hamburger-btn { display: block !important; }
+        }
+
+        /* Mobile phones */
+        @media (max-width: 768px) {
+            .topbar { padding: 0 16px; height: 64px; }
+            .content-area { padding: 0 16px 20px 16px; }
+            .topbar .search-desktop { display: none; }
+            .topbar .user-info-text { display: none; }
+            .topbar .divider-line { display: none; }
+            .icon-btn { width: 36px !important; height: 36px !important; font-size: 0.8rem; border-radius: 50px !important; }
+            .sidebar { padding: 16px 12px; width: 260px; }
+            .dash-card { border-radius: 18px; padding: 16px !important; }
+            .hero-banner { padding: 20px; border-radius: 18px; }
+            .hero-banner h1 { font-size: 1.5rem; }
+            .hero-banner p { font-size: 0.85rem; }
+            .clean-table th, .clean-table td { padding: 10px 8px; font-size: 0.7rem; }
+            .btn-sm { padding: 0 12px; height: 32px; font-size: 0.6rem; }
+            .status-badge { font-size: 0.6rem; padding: 4px 8px; }
+        }
+
+        /* Small phones (iPhone 12 Pro, etc.) */
+        @media (max-width: 430px) {
+            .topbar { padding: 0 12px; height: 58px; }
+            .content-area { padding: 0 12px 16px 12px; }
+            .topbar .page-title { font-size: 0.7rem; max-width: 80px; }
+            .icon-btn { width: 32px !important; height: 32px !important; font-size: 0.7rem; }
+            .sidebar { padding: 12px 10px; width: 240px; }
+            .sidebar-logo-text { font-size: 1.1rem; }
+            .sidebar-logo-icon { width: 34px; height: 34px; }
+            .sidebar-logo-icon i { font-size: 1rem; }
+            .nav-item { padding: 10px 14px; font-size: 0.8rem; }
+            .nav-item i { font-size: 0.9rem; width: 20px; }
+            .dash-card { border-radius: 14px; padding: 12px !important; }
+            .dash-card h3 { font-size: 1.5rem; }
+            .hero-banner { padding: 16px; border-radius: 14px; }
+            .hero-banner h1 { font-size: 1.2rem; }
+            .hero-banner p { font-size: 0.75rem; }
+            .hero-banner .badge-tag { font-size: 0.55rem; padding: 2px 10px; }
+            .hero-banner .cta-btn { padding: 8px 16px; font-size: 0.7rem; }
+            .clean-table { min-width: 500px; }
+            .clean-table th, .clean-table td { padding: 8px 6px; font-size: 0.6rem; }
+            .btn-sm { padding: 0 10px; height: 28px; font-size: 0.55rem; }
+            .status-badge { font-size: 0.5rem; padding: 3px 6px; }
+            .activity-item { padding: 10px; }
+            .activity-item p { font-size: 0.7rem; }
+            .notification-dropdown { width: 280px; right: -60px; }
+        }
+
+        /* Extra small phones */
+        @media (max-width: 360px) {
+            .topbar { padding: 0 8px; height: 52px; }
+            .content-area { padding: 0 8px 12px 8px; }
+            .icon-btn { width: 28px !important; height: 28px !important; font-size: 0.6rem; }
+            .sidebar { padding: 10px 8px; width: 220px; }
+            .sidebar-logo-text { font-size: 0.95rem; }
+            .sidebar-logo-icon { width: 30px; height: 30px; }
+            .sidebar-logo-icon i { font-size: 0.85rem; }
+            .nav-item { padding: 8px 12px; font-size: 0.7rem; }
+            .nav-item i { font-size: 0.8rem; width: 18px; }
+            .dash-card { border-radius: 12px; padding: 10px !important; }
+            .dash-card h3 { font-size: 1.2rem; }
+            .hero-banner { padding: 12px; border-radius: 12px; }
+            .hero-banner h1 { font-size: 1rem; }
+            .clean-table { min-width: 400px; }
+            .clean-table th, .clean-table td { padding: 6px 4px; font-size: 0.55rem; }
+            .btn-sm { padding: 0 8px; height: 24px; font-size: 0.5rem; }
+        }
+
+        .sidebar-overlay {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(3px);
+            z-index: 45; display: none; opacity: 0; transition: opacity 0.3s;
+        }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+        
+        .hamburger-btn { display: none; font-size: 1.2rem; color: var(--text-main); cursor: pointer; background: none; border: none; padding: 4px; }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: var(--sidebar-muted);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-decoration: none;
+            border-radius: 12px;
+            margin-bottom: 2px;
+            transition: all 0.2s;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+        }
+        .nav-item i { width: 22px; font-size: 1rem; text-align: center; margin-right: 12px; flex-shrink: 0; }
+        [dir="rtl"] .nav-item i { margin-right: 0; margin-left: 12px; }
+        .nav-item:hover { color: var(--accent-color); background: var(--sidebar-hover); }
+        .nav-item.active { background: var(--sidebar-active); color: var(--accent-color); }
+        .nav-item.active i { color: var(--accent-color); }
+
+        .icon-btn {
+            width: 40px; height: 40px; border-radius: 50px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-main); background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            cursor: pointer; transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .icon-btn:hover { background: var(--accent-color); color: #0F4C5C; border-color: var(--accent-color); }
+
+        .btn-sm {
+            padding: 0 16px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 34px;
+            white-space: nowrap;
+            box-sizing: border-box;
+        }
+        .btn-action { background: var(--accent-color); color: #0F4C5C; border: 2px solid var(--accent-color); box-shadow: var(--btn-shadow); }
+        .btn-action:hover { background: var(--accent-dark); border-color: var(--accent-dark); transform: scale(1.03); color: #FFFFFF; }
+        .btn-outline-table { background: transparent; color: var(--accent-color); border: 2px solid var(--accent-color); }
+        .btn-outline-table:hover { border-color: var(--accent-color); background: var(--accent-color); color: #0F4C5C; transform: scale(1.03); }
+
+        .tab-section { display: none; animation: fadeIn 0.3s ease-in-out forwards; }
+        .tab-section.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .status-badge { padding: 4px 10px; border-radius: 50px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 4px; }
+        .badge-success { background: rgba(16, 185, 129, 0.12); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .badge-warning { background: rgba(245, 158, 11, 0.12); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
+        .badge-info { background: rgba(56, 189, 248, 0.12); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.2); }
+        .badge-gold { background: rgba(212, 175, 55, 0.15); color: #D4AF37; border: 1px solid rgba(212, 175, 55, 0.2); }
+        .badge-gray { background: rgba(100, 116, 139, 0.12); color: #64748B; border: 1px solid rgba(100, 116, 139, 0.2); }
+
+        .color-box-gold { background-color: rgba(212, 175, 55, 0.15); color: #D4AF37; }
+        .dark .color-box-gold { background-color: rgba(212, 175, 55, 0.2); color: #D4AF37; }
+        .color-box-teal { background-color: rgba(15, 76, 92, 0.15); color: #0F4C5C; }
+        .dark .color-box-teal { background-color: rgba(15, 76, 92, 0.2); color: #60A5FA; }
+        .color-box-blue { background-color: rgba(37, 99, 235, 0.15); color: #2563EB; }
+        .dark .color-box-blue { background-color: rgba(59, 130, 246, 0.2); color: #60A5FA; }
+        .color-box-green { background-color: rgba(16, 185, 129, 0.15); color: #10B981; }
+        .dark .color-box-green { background-color: rgba(16, 185, 129, 0.2); color: #34D399; }
+        .color-box-purple { background-color: #f3e8ff; color: #9333ea; }
+        .dark .color-box-purple { background-color: rgba(147, 51, 234, 0.2); color: #c084fc; }
+
+        .hero-banner {
+            background: linear-gradient(135deg, #0F4C5C 0%, #0B1E26 100%);
+            color: #ffffff;
+            border-radius: var(--radius);
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
+        }
+        .dark .hero-banner {
+            background: linear-gradient(135deg, #0A1128 0%, #0B1E26 100%);
+        }
+        .hero-banner::before {
+            content: ''; position: absolute; right: -10%; top: -50%;
+            width: 400px; height: 400px; background: var(--accent-color);
+            border-radius: 50%; filter: blur(100px); opacity: 0.12;
+        }
+        .hero-banner-pattern {
+            position: absolute; inset: 0; opacity: 0.04; pointer-events: none;
+            background-image: radial-gradient(#D4AF37 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .sidebar-logo-icon {
+            background: #0F4C5C;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            flex-shrink: 0;
+        }
+        .sidebar-logo-icon i { color: #D4AF37; font-size: 1.1rem; }
+        .sidebar-logo-text {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--sidebar-text);
+        }
+        .sidebar-logo-text .gold { color: #D4AF37; }
+        .sidebar-logo-sub {
+            font-size: 0.4rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--sidebar-muted);
+            font-weight: 600;
+            display: block;
+            margin-top: -2px;
+        }
+
+        .clean-table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: left; }
+        [dir="rtl"] .clean-table { text-align: right; }
+        .clean-table th { padding: 12px 16px; color: var(--text-muted); font-weight: 700; font-size: 0.65rem; background: var(--dash-bg); text-transform: uppercase; letter-spacing: 1px; }
+        .clean-table th:first-child { border-radius: 12px 0 0 12px; }
+        .clean-table th:last-child { border-radius: 0 12px 12px 0; }
+        [dir="rtl"] .clean-table th:first-child { border-radius: 0 12px 12px 0; }
+        [dir="rtl"] .clean-table th:last-child { border-radius: 12px 0 0 12px; }
+        .clean-table td { padding: 12px 16px; color: var(--text-main); font-weight: 500; font-size: 0.85rem; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+        .clean-table tr:last-child td { border-bottom: none; }
+
+        .activity-item { padding: 12px 16px; border-bottom: 1px solid var(--border-color); display: flex; gap: 10px; align-items: flex-start; }
+        .activity-item:last-child { border-bottom: none; }
+        .activity-icon { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+        .scrollbar-none::-webkit-scrollbar { display: none; }
+        .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @keyframes bell-shake {
+            0%, 100% { transform: rotate(0); }
+            15% { transform: rotate(10deg); }
+            30% { transform: rotate(-10deg); }
+            45% { transform: rotate(6deg); }
+            60% { transform: rotate(-6deg); }
+            75% { transform: rotate(3deg); }
+            90% { transform: rotate(-3deg); }
+        }
+
+        @media (max-width: 430px) {
+            .hero-banner { padding: 16px; }
+            .hero-banner .flex-col { gap: 12px; }
+            .hero-banner .cta-btn-group { flex-direction: column; width: 100%; }
+            .hero-banner .cta-btn-group .btn { width: 100%; text-align: center; }
+            .notification-dropdown { width: 280px; right: -40px; }
+            .notification-dropdown .alert-item { flex-direction: column; align-items: flex-start; gap: 4px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
+    <aside class="sidebar" id="dashboardSidebar">
+        <div class="mb-6 px-4 flex items-center justify-between mt-1">
+            <a href="index.html" class="sidebar-logo">
+                <div class="sidebar-logo-icon">
+                    <i class="fas fa-plane"></i>
+                </div>
+                <div>
+                    <span class="sidebar-logo-text">Sky<span class="gold">Wings</span></span>
+                    <span class="sidebar-logo-sub">Aviation Academy</span>
+                </div>
+            </a>
+            <button onclick="toggleSidebar()" class="xl:hidden text-white/70 hover:text-aviation-gold transition text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="flex items-center gap-3 bg-white/10 p-3 rounded-2xl border border-white/5 mb-4">
+            <div class="w-9 h-9 rounded-xl bg-aviation-gold text-aviation-teal flex items-center justify-center font-bold text-xs shadow-sm flex-shrink-0">
+                <i class="fa-solid fa-user-tie"></i>
+            </div>
+            <div class="text-left min-w-0">
+                <h5 class="text-xs font-bold text-white truncate">Admin Console</h5>
+                <p class="text-[8px] text-aviation-gold font-black uppercase tracking-wider">Super Administrator</p>
+            </div>
+        </div>
+
+        <div class="space-y-1 flex-grow">
+            <p class="text-[9px] text-white/40 font-bold uppercase tracking-wider text-left pl-2 mb-2">Operations</p>
+            <nav class="space-y-0.5" id="adminSidebarMenu">
+                <button onclick="switchAdminTab('dashboard', 'Flight Operations Dashboard')" id="tabBtn-dashboard" class="nav-item active">
+                    <i class="fa-solid fa-chart-pie"></i> <span>Dashboard</span>
+                </button>
+                <button onclick="switchAdminTab('flights', 'Flight Schedule')" id="tabBtn-flights" class="nav-item">
+                    <i class="fa-solid fa-plane-departure"></i> <span>Flight Schedule</span>
+                </button>
+                <button onclick="switchAdminTab('aircraft', 'Fleet Management')" id="tabBtn-aircraft" class="nav-item">
+                    <i class="fa-solid fa-plane"></i> <span>Fleet</span>
+                </button>
+                <button onclick="switchAdminTab('instructors', 'Instructor Roster')" id="tabBtn-instructors" class="nav-item">
+                    <i class="fa-solid fa-user-graduate"></i> <span>Instructors</span>
+                </button>
+                <button onclick="switchAdminTab('students', 'Student Progress')" id="tabBtn-students" class="nav-item">
+                    <i class="fa-solid fa-graduation-cap"></i> <span>Students</span>
+                </button>
+                <button onclick="switchAdminTab('revenue', 'Revenue Analytics')" id="tabBtn-revenue" class="nav-item">
+                    <i class="fa-solid fa-chart-line"></i> <span>Revenue</span>
+                </button>
+                <button onclick="switchAdminTab('maintenance', 'Aircraft Maintenance')" id="tabBtn-maintenance" class="nav-item">
+                    <i class="fa-solid fa-screwdriver-wrench"></i> <span>Maintenance</span>
+                </button>
+                <button onclick="switchAdminTab('settings', 'System Settings')" id="tabBtn-settings" class="nav-item">
+                    <i class="fa-solid fa-cog"></i> <span>Settings</span>
+                </button>
+            </nav>
+        </div>
+
+        <div class="space-y-3 pt-4 border-t border-white/10 mt-2">
+            <a href="client.html" class="w-full px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 flex items-center gap-2.5 text-white/60 hover:bg-white/10">
+                <i class="fa-solid fa-circle-user text-sm text-aviation-gold"></i> <span>Student Portal</span>
+            </a>
+            <a href="login.html" class="w-full px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 flex items-center gap-2.5 text-red-400 hover:bg-red-500/10">
+                <i class="fa-solid fa-arrow-right-from-bracket text-sm"></i> <span>Log Out</span>
+            </a>
+        </div>
+    </aside>
+
+    <div class="main-wrapper">
+        <header class="topbar">
+            <div class="flex items-center gap-3 min-w-0">
+                <button onclick="toggleSidebar()" class="hamburger-btn w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 transition flex items-center justify-center text-dark dark:text-white flex-shrink-0">
+                    <i class="fa-solid fa-bars text-sm"></i>
+                </button>
+                <div class="search-desktop hidden md:flex items-center rounded-full px-4 py-1.5 w-56 lg:w-72 transition-colors focus-within:ring-2 ring-aviation-gold" style="background: var(--card-bg); border: 1px solid var(--border-color);">
+                    <i class="fas fa-search text-muted mr-2 text-xs"></i>
+                    <input type="text" placeholder="Search..." class="bg-transparent border-none outline-none w-full text-xs font-medium text-[var(--text-main)] placeholder-[var(--text-muted)]">
+                </div>
+                <h2 class="page-title text-xs sm:text-sm font-bold text-dark/70 dark:text-white/70 font-sans truncate max-w-[100px] sm:max-w-[180px]">
+                    <span id="currentActiveTabName" class="text-aviation-gold">Dashboard</span>
+                </h2>
+            </div>
+
+            <div class="flex items-center gap-1.5 sm:gap-3">
+                <button class="icon-btn hidden sm:flex" id="rtl-toggle" title="Toggle RTL">⇄</button>
+                <button class="icon-btn" id="theme-toggle" title="Toggle Dark Mode"><i class="fas fa-moon text-xs"></i></button>
+                
+                <div class="relative">
+                    <button onclick="toggleNotificationDropdown(event)" class="icon-btn relative" id="notificationBellBtn">
+                        <i class="fa-solid fa-bell text-xs animate-[bell-shake_1.5s_infinite]"></i>
+                        <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 border-2 border-[var(--card-bg)] animate-pulse"></span>
+                    </button>
+                    <div id="notificationDropdown" class="notification-dropdown absolute right-0 mt-2 w-72 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-xl border border-aviation-gold/20 rounded-2xl shadow-2xl p-3 hidden z-50">
+                        <div class="flex justify-between items-center pb-2 border-b border-aviation-gold/20 mb-2">
+                            <h4 class="font-bold text-[10px] text-dark dark:text-white uppercase tracking-wider">Alerts</h4>
+                            <span class="bg-aviation-gold/10 text-aviation-gold text-[7px] font-black px-2 py-0.5 rounded-full uppercase">3</span>
+                        </div>
+                        <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                            <div class="alert-item flex gap-2 p-2 rounded-xl hover:bg-aviation-gold/10 transition text-left cursor-pointer">
+                                <div class="w-7 h-7 rounded-lg bg-red-100 dark:bg-red-950/20 text-red-500 flex items-center justify-center shrink-0 text-xs">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <h5 class="text-[10px] font-bold text-dark dark:text-white truncate">Maintenance Due: N172SP</h5>
+                                    <p class="text-[8px] text-dark/60 dark:text-white/40 truncate">50-hr inspection required</p>
+                                </div>
+                            </div>
+                            <div class="alert-item flex gap-2 p-2 rounded-xl hover:bg-aviation-gold/10 transition text-left cursor-pointer">
+                                <div class="w-7 h-7 rounded-lg bg-aviation-gold/15 text-aviation-gold flex items-center justify-center shrink-0 text-xs">
+                                    <i class="fa-solid fa-calendar-check"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <h5 class="text-[10px] font-bold text-dark dark:text-white truncate">New Student: Sarah Chen</h5>
+                                    <p class="text-[8px] text-dark/60 dark:text-white/40 truncate">Enrolled in Private Pilot</p>
+                                </div>
+                            </div>
+                            <div class="alert-item flex gap-2 p-2 rounded-xl hover:bg-aviation-gold/10 transition text-left cursor-pointer">
+                                <div class="w-7 h-7 rounded-lg bg-green-100 dark:bg-green-950/20 text-green-500 flex items-center justify-center shrink-0 text-xs">
+                                    <i class="fa-solid fa-check-circle"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <h5 class="text-[10px] font-bold text-dark dark:text-white truncate">Checkride Passed</h5>
+                                    <p class="text-[8px] text-dark/60 dark:text-white/40 truncate">Michael R. - Commercial Pilot</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="divider-line w-px h-6 mx-0.5 bg-[var(--border-color)] hidden sm:block"></div>
+                
+                <div class="flex items-center gap-1.5 cursor-pointer sm:bg-[var(--card-bg)] sm:border border-[var(--border-color)] sm:pl-1.5 sm:pr-3 sm:py-1 rounded-full hover:border-aviation-gold transition-colors shrink-0">
+                    <div class="w-7 h-7 rounded-full bg-aviation-gold text-[#0F4C5C] flex items-center justify-center font-bold text-[10px]">JD</div>
+                    <div class="user-info-text hidden sm:block text-left min-w-0">
+                        <p class="text-xs font-bold text-[var(--text-main)] leading-tight truncate">John Doe</p>
+                        <p class="text-[8px] text-[var(--text-muted)] font-medium truncate">Admin</p>
+                    </div>
+                    <i class="fas fa-chevron-down text-[8px] text-[var(--text-muted)] ml-1 hidden sm:block"></i>
+                </div>
+            </div>
+        </header>
+
+        <main class="content-area">
+            
+            <!-- TAB 1: Dashboard -->
+            <div id="contentPanel-dashboard" class="tab-section active">
+                <div class="hero-banner mb-6 flex flex-col lg:flex-row items-center justify-between gap-4 p-5 sm:p-6 md:p-8">
+                    <div class="hero-banner-pattern"></div>
+                    <div class="relative z-10 w-full lg:w-auto text-center lg:text-left">
+                        <span class="badge-tag inline-block border border-aviation-gold bg-aviation-gold/20 text-white text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full mb-2">Flight Operations</span>
+                        <h1 class="text-2xl sm:text-3xl md:text-4xl font-black mb-1 tracking-tight text-white">Welcome to the Cockpit</h1>
+                        <p class="text-slate-300 text-xs sm:text-sm max-w-xl mx-auto lg:mx-0 font-medium">Today: <strong style="color: var(--accent-color);">12 flights</strong> scheduled · <strong style="color: var(--accent-color);">48 students</strong> active</p>
+                    </div>
+                    <div class="cta-btn-group flex flex-col md:flex-row gap-3 w-full lg:w-auto relative z-10">
+                        <a href="aircraft.html" class="btn w-full sm:w-auto bg-transparent border-2 border-slate-500 text-white hover:bg-slate-800 px-5 py-2.5 font-bold text-[10px] uppercase tracking-wide transition-all rounded-full text-center">View Fleet</a>
+                        <button class="btn w-full sm:w-auto bg-aviation-gold hover:bg-[#B8960F] text-[#0F4C5C] hover:text-white border-2 border-aviation-gold hover:border-[#B8960F] px-5 py-2.5 font-bold text-[10px] uppercase tracking-wide shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 rounded-full tab-btn" data-target="section-flights">
+                            <i class="fas fa-calendar-plus text-xs"></i> Schedule Flight
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+                    <div class="dash-card p-4 sm:p-5 flex flex-col justify-center">
+                        <div class="flex justify-between items-start mb-1">
+                            <p class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] truncate">Aircraft</p>
+                            <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-[12px] color-box-gold flex items-center justify-center shrink-0 ml-1 text-sm">
+                                <i class="fas fa-plane"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl sm:text-2xl lg:text-3xl font-black text-[var(--text-main)]">12</h3>
+                        <p class="text-[8px] sm:text-[9px] uppercase text-[var(--text-muted)] font-bold tracking-widest">Fleet Ready</p>
+                    </div>
+
+                    <div class="dash-card p-4 sm:p-5 flex flex-col justify-center">
+                        <div class="flex justify-between items-start mb-1">
+                            <p class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] truncate">Students</p>
+                            <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-[12px] color-box-teal flex items-center justify-center shrink-0 ml-1 text-sm">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl sm:text-2xl lg:text-3xl font-black text-[var(--text-main)]">48</h3>
+                        <p class="text-[8px] sm:text-[9px] uppercase text-[var(--text-muted)] font-bold tracking-widest">Enrolled</p>
+                    </div>
+
+                    <div class="dash-card p-4 sm:p-5 flex flex-col justify-center">
+                        <div class="flex justify-between items-start mb-1">
+                            <p class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] truncate">Instructors</p>
+                            <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-[12px] color-box-purple flex items-center justify-center shrink-0 ml-1 text-sm">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl sm:text-2xl lg:text-3xl font-black text-[var(--text-main)]">16</h3>
+                        <p class="text-[8px] sm:text-[9px] uppercase text-[var(--text-muted)] font-bold tracking-widest">CFI · CFII · MEI</p>
+                    </div>
+
+                    <div class="dash-card p-4 sm:p-5 flex flex-col justify-between border-l-4 border-l-aviation-gold">
+                        <div class="flex justify-between items-start mb-1 gap-1">
+                            <p class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] truncate">Flight Hours</p>
+                        </div>
+                        <h3 class="text-xl sm:text-2xl lg:text-3xl font-black text-[var(--text-main)]">284.5</h3>
+                        <p class="text-[10px] sm:text-xs text-[var(--text-muted)]">+12% vs last month</p>
+                        <a href="#" class="text-aviation-gold font-bold text-[10px] sm:text-xs mt-1 hover:underline flex items-center gap-1">Details <i class="fas fa-arrow-right text-[8px]"></i></a>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+                    <div class="lg:col-span-2 dash-card flex flex-col min-w-0 w-full">
+                        <div class="p-4 sm:p-5 border-b border-[var(--border-color)] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                            <div>
+                                <h3 class="text-base sm:text-lg font-bold text-[var(--text-main)]">Today's Schedule</h3>
+                                <p class="text-[10px] sm:text-xs font-medium text-[var(--text-muted)]">October 24, 2026</p>
+                            </div>
+                            <button class="btn-sm btn-outline-table w-full sm:w-auto shrink-0 tab-btn" data-target="section-flights">View All</button>
+                        </div>
+                        <div class="overflow-x-auto flex-grow w-full">
+                            <table class="clean-table min-w-[500px] sm:min-w-[600px]">
+                                <thead>
+                                    <tr>
+                                        <th>Flight</th>
+                                        <th>Student</th>
+                                        <th>Aircraft</th>
+                                        <th>Time</th>
+                                        <th style="text-align: center;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span class="font-bold text-[var(--text-main)] text-xs sm:text-sm">#FL-402</span></td>
+                                        <td class="text-xs sm:text-sm">Sarah C.</td>
+                                        <td class="text-xs sm:text-sm">C172</td>
+                                        <td class="text-xs sm:text-sm">9:00 AM</td>
+                                        <td class="text-center"><span class="status-badge badge-success text-[8px] sm:text-[10px]">Done</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="font-bold text-[var(--text-main)] text-xs sm:text-sm">#FL-403</span></td>
+                                        <td class="text-xs sm:text-sm">Michael R.</td>
+                                        <td class="text-xs sm:text-sm">PA28</td>
+                                        <td class="text-xs sm:text-sm">11:30 AM</td>
+                                        <td class="text-center"><span class="status-badge badge-warning text-[8px] sm:text-[10px]">Active</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="font-bold text-[var(--text-main)] text-xs sm:text-sm">#FL-404</span></td>
+                                        <td class="text-xs sm:text-sm">Jessica K.</td>
+                                        <td class="text-xs sm:text-sm">C172</td>
+                                        <td class="text-xs sm:text-sm">2:00 PM</td>
+                                        <td class="text-center"><span class="status-badge badge-info text-[8px] sm:text-[10px]">Scheduled</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="dash-card flex flex-col h-[350px] sm:h-[400px] overflow-hidden">
+                        <div class="p-3 sm:p-4 border-b border-[var(--border-color)] flex justify-between items-center bg-[var(--dash-bg)]">
+                            <h3 class="font-bold text-[var(--text-main)] flex items-center gap-1.5 text-[10px] sm:text-xs uppercase tracking-widest">
+                                <i class="fas fa-history text-aviation-gold"></i> Activity
+                            </h3>
+                        </div>
+                        <div class="flex-grow overflow-y-auto p-1">
+                            <div class="activity-item">
+                                <div class="activity-icon color-box-gold text-xs">
+                                    <i class="fas fa-plane"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs sm:text-sm font-bold text-[var(--text-main)] truncate">Flight #FL-402 Done</p>
+                                    <p class="text-[9px] sm:text-[10px] text-[var(--text-muted)] truncate">Sarah Chen - Cross-country</p>
+                                    <span class="text-[8px] sm:text-[9px] font-bold text-[var(--text-muted)]">2 hours ago</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon color-box-teal text-xs">
+                                    <i class="fas fa-user-plus"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs sm:text-sm font-bold text-[var(--text-main)] truncate">New Enrollment</p>
+                                    <p class="text-[9px] sm:text-[10px] text-[var(--text-muted)] truncate">James Wilson - PPL</p>
+                                    <span class="text-[8px] sm:text-[9px] font-bold text-[var(--text-muted)]">Yesterday</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon color-box-purple text-xs">
+                                    <i class="fas fa-certificate"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs sm:text-sm font-bold text-[var(--text-main)] truncate">Checkride Passed</p>
+                                    <p class="text-[9px] sm:text-[10px] text-[var(--text-muted)] truncate">Michael R. - CPL</p>
+                                    <span class="text-[8px] sm:text-[9px] font-bold text-[var(--text-muted)]">Oct 22</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: Flight Schedule -->
+            <div id="contentPanel-flights" class="tab-section">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-black text-[var(--text-main)] tracking-tight">Flight Schedule</h2>
+                        <p class="text-xs sm:text-sm text-[var(--text-muted)]">Manage all flight operations</p>
+                    </div>
+                    <button class="btn-sm btn-action flex items-center gap-1.5 text-xs"><i class="fas fa-plus text-[10px]"></i> Schedule</button>
+                </div>
+
+                <div class="dash-card overflow-hidden">
+                    <div class="overflow-x-auto w-full">
+                        <table class="clean-table min-w-[700px]">
+                            <thead>
+                                <tr>
+                                    <th>Flight</th>
+                                    <th>Student</th>
+                                    <th>Aircraft</th>
+                                    <th>Instructor</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th style="text-align: center;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="font-bold text-[var(--text-main)] text-xs sm:text-sm">#FL-402</span></td>
+                                    <td class="text-xs sm:text-sm">Sarah Chen</td>
+                                    <td class="text-xs sm:text-sm">C172</td>
+                                    <td class="text-xs sm:text-sm">Carter</td>
+                                    <td class="text-xs sm:text-sm">Oct 24</td>
+                                    <td class="text-xs sm:text-sm">9:00 AM</td>
+                                    <td class="text-center"><span class="status-badge badge-success text-[8px] sm:text-[10px]">Done</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="font-bold text-[var(--text-main)] text-xs sm:text-sm">#FL-403</span></td>
+                                    <td class="text-xs sm:text-sm">Michael R.</td>
+                                    <td class="text-xs sm:text-sm">PA28</td>
+                                    <td class="text-xs sm:text-sm">Rodriguez</td>
+                                    <td class="text-xs sm:text-sm">Oct 24</td>
+                                    <td class="text-xs sm:text-sm">11:30 AM</td>
+                                    <td class="text-center"><span class="status-badge badge-warning text-[8px] sm:text-[10px]">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="font-bold text-[var(--text-main)] text-xs sm:text-sm">#FL-404</span></td>
+                                    <td class="text-xs sm:text-sm">Jessica K.</td>
+                                    <td class="text-xs sm:text-sm">C172</td>
+                                    <td class="text-xs sm:text-sm">Park</td>
+                                    <td class="text-xs sm:text-sm">Oct 24</td>
+                                    <td class="text-xs sm:text-sm">2:00 PM</td>
+                                    <td class="text-center"><span class="status-badge badge-info text-[8px] sm:text-[10px]">Scheduled</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: Fleet -->
+            <div id="contentPanel-aircraft" class="tab-section">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-black text-[var(--text-main)] tracking-tight">Fleet Management</h2>
+                        <p class="text-xs sm:text-sm text-[var(--text-muted)]">Aircraft status and availability</p>
+                    </div>
+                    <button class="btn-sm btn-action flex items-center gap-1.5 text-xs"><i class="fas fa-plus text-[10px]"></i> Add Aircraft</button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="dash-card p-5 text-center">
+                        <div class="w-16 h-16 rounded-2xl bg-[var(--dash-bg)] border border-[var(--border-color)] flex items-center justify-center mx-auto mb-3 text-2xl text-aviation-gold">
+                            <i class="fas fa-plane"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-[var(--text-main)]">Cessna 172</h4>
+                        <p class="text-sm text-[var(--text-muted)]">N172SP</p>
+                        <span class="inline-block mt-2 status-badge badge-success text-[8px] sm:text-[10px]">Available</span>
+                    </div>
+
+                    <div class="dash-card p-5 text-center">
+                        <div class="w-16 h-16 rounded-2xl bg-[var(--dash-bg)] border border-[var(--border-color)] flex items-center justify-center mx-auto mb-3 text-2xl text-aviation-gold">
+                            <i class="fas fa-plane"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-[var(--text-main)]">Piper Archer</h4>
+                        <p class="text-sm text-[var(--text-muted)]">N234PA</p>
+                        <span class="inline-block mt-2 status-badge badge-warning text-[8px] sm:text-[10px]">In Maintenance</span>
+                    </div>
+
+                    <div class="dash-card p-5 text-center">
+                        <div class="w-16 h-16 rounded-2xl bg-[var(--dash-bg)] border border-[var(--border-color)] flex items-center justify-center mx-auto mb-3 text-2xl text-aviation-gold">
+                            <i class="fas fa-plane"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-[var(--text-main)]">Diamond DA40</h4>
+                        <p class="text-sm text-[var(--text-muted)]">N345DA</p>
+                        <span class="inline-block mt-2 status-badge badge-success text-[8px] sm:text-[10px]">Available</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: Instructors -->
+            <div id="contentPanel-instructors" class="tab-section">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-black text-[var(--text-main)] tracking-tight">Instructor Roster</h2>
+                        <p class="text-xs sm:text-sm text-[var(--text-muted)]">Certified flight instructors</p>
+                    </div>
+                    <button class="btn-sm btn-action flex items-center gap-1.5 text-xs"><i class="fas fa-plus text-[10px]"></i> Add Instructor</button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="dash-card p-5 text-center">
+                        <div class="w-16 h-16 rounded-full bg-aviation-gold/10 border-2 border-aviation-gold flex items-center justify-center mx-auto mb-3 text-xl text-aviation-gold">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-[var(--text-main)]">Capt. James Carter</h4>
+                        <p class="text-sm text-aviation-gold">Chief Flight Instructor</p>
+                        <span class="inline-block mt-2 status-badge badge-success text-[8px] sm:text-[10px]">Available</span>
+                    </div>
+
+                    <div class="dash-card p-5 text-center">
+                        <div class="w-16 h-16 rounded-full bg-aviation-gold/10 border-2 border-aviation-gold flex items-center justify-center mx-auto mb-3 text-xl text-aviation-gold">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-[var(--text-main)]">Emily Rodriguez</h4>
+                        <p class="text-sm text-aviation-gold">Senior CFI · MEI</p>
+                        <span class="inline-block mt-2 status-badge badge-success text-[8px] sm:text-[10px]">Available</span>
+                    </div>
+
+                    <div class="dash-card p-5 text-center">
+                        <div class="w-16 h-16 rounded-full bg-aviation-gold/10 border-2 border-aviation-gold flex items-center justify-center mx-auto mb-3 text-xl text-aviation-gold">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <h4 class="text-lg font-bold text-[var(--text-main)]">David Park</h4>
+                        <p class="text-sm text-aviation-gold">Instrument Rating Specialist</p>
+                        <span class="inline-block mt-2 status-badge badge-warning text-[8px] sm:text-[10px]">On Leave</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: Students -->
+            <div id="contentPanel-students" class="tab-section">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-black text-[var(--text-main)] tracking-tight">Student Progress</h2>
+                        <p class="text-xs sm:text-sm text-[var(--text-muted)]">Track student milestones</p>
+                    </div>
+                    <button class="btn-sm btn-action flex items-center gap-1.5 text-xs"><i class="fas fa-plus text-[10px]"></i> Enroll</button>
+                </div>
+
+                <div class="dash-card overflow-hidden">
+                    <div class="overflow-x-auto w-full">
+                        <table class="clean-table min-w-[600px]">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Course</th>
+                                    <th>Hours</th>
+                                    <th>Progress</th>
+                                    <th style="text-align: center;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-xs sm:text-sm font-bold">Sarah Chen</td>
+                                    <td class="text-xs sm:text-sm">Private Pilot</td>
+                                    <td class="text-xs sm:text-sm">42.5</td>
+                                    <td><div class="w-full bg-[var(--dash-bg)] rounded-full h-1.5 max-w-[80px]"><div class="bg-aviation-gold h-1.5 rounded-full" style="width: 85%"></div></div></td>
+                                    <td class="text-center"><span class="status-badge badge-success text-[8px] sm:text-[10px]">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-xs sm:text-sm font-bold">Michael R.</td>
+                                    <td class="text-xs sm:text-sm">Commercial</td>
+                                    <td class="text-xs sm:text-sm">118.0</td>
+                                    <td><div class="w-full bg-[var(--dash-bg)] rounded-full h-1.5 max-w-[80px]"><div class="bg-aviation-gold h-1.5 rounded-full" style="width: 65%"></div></div></td>
+                                    <td class="text-center"><span class="status-badge badge-info text-[8px] sm:text-[10px]">Checkride</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-xs sm:text-sm font-bold">Jessica K.</td>
+                                    <td class="text-xs sm:text-sm">Instrument</td>
+                                    <td class="text-xs sm:text-sm">68.0</td>
+                                    <td><div class="w-full bg-[var(--dash-bg)] rounded-full h-1.5 max-w-[80px]"><div class="bg-aviation-gold h-1.5 rounded-full" style="width: 45%"></div></div></td>
+                                    <td class="text-center"><span class="status-badge badge-warning text-[8px] sm:text-[10px]">In Progress</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 6: Revenue -->
+            <div id="contentPanel-revenue" class="tab-section">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-black text-[var(--text-main)] tracking-tight">Revenue Analytics</h2>
+                        <p class="text-xs sm:text-sm text-[var(--text-muted)]">Financial performance</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6">
+                    <div class="dash-card p-4 text-center">
+                        <p class="text-[8px] sm:text-[9px] text-[var(--text-muted)] uppercase tracking-widest font-bold">Total Revenue</p>
+                        <h3 class="text-lg sm:text-xl lg:text-2xl font-black text-aviation-gold">$284.5K</h3>
+                        <p class="text-[8px] sm:text-[9px] text-green-500">+12.5%</p>
+                    </div>
+                    <div class="dash-card p-4 text-center">
+                        <p class="text-[8px] sm:text-[9px] text-[var(--text-muted)] uppercase tracking-widest font-bold">Flight Training</p>
+                        <h3 class="text-lg sm:text-xl lg:text-2xl font-black text-[var(--text-main)]">$189.2K</h3>
+                        <p class="text-[8px] sm:text-[9px] text-[var(--text-muted)]">66.5%</p>
+                    </div>
+                    <div class="dash-card p-4 text-center">
+                        <p class="text-[8px] sm:text-[9px] text-[var(--text-muted)] uppercase tracking-widest font-bold">Aircraft Rental</p>
+                        <h3 class="text-lg sm:text-xl lg:text-2xl font-black text-[var(--text-main)]">$95.3K</h3>
+                        <p class="text-[8px] sm:text-[9px] text-[var(--text-muted)]">33.5%</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div class="dash-card p-4 sm:p-5">
+                        <h4 class="font-bold text-xs sm:text-sm text-[var(--text-main)] mb-3">Revenue Trends</h4>
+                        <div id="revenueChartContainer" class="w-full"></div>
+                    </div>
+                    <div class="dash-card p-4 sm:p-5">
+                        <h4 class="font-bold text-xs sm:text-sm text-[var(--text-main)] mb-3">Revenue by Category</h4>
+                        <div id="packagesChartContainer" class="w-full"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 7: Maintenance -->
+            <div id="contentPanel-maintenance" class="tab-section">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-black text-[var(--text-main)] tracking-tight">Aircraft Maintenance</h2>
+                        <p class="text-xs sm:text-sm text-[var(--text-muted)]">Track maintenance schedules</p>
+                    </div>
+                    <button class="btn-sm btn-action flex items-center gap-1.5 text-xs"><i class="fas fa-plus text-[10px]"></i> Schedule</button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="dash-card p-5 border-l-4 border-l-green-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="text-lg font-bold text-[var(--text-main)]">N172SP</h4>
+                                <p class="text-sm text-[var(--text-muted)]">Cessna 172</p>
+                            </div>
+                            <span class="status-badge badge-success text-[8px] sm:text-[10px]">Airworthy</span>
+                        </div>
+                        <div class="mt-3 space-y-1 text-xs sm:text-sm">
+                            <div class="flex justify-between"><span class="text-[var(--text-muted)]">Last:</span><span class="font-bold">Oct 15</span></div>
+                            <div class="flex justify-between"><span class="text-[var(--text-muted)]">Next:</span><span class="font-bold">50 hrs</span></div>
+                        </div>
+                    </div>
+
+                    <div class="dash-card p-5 border-l-4 border-l-yellow-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="text-lg font-bold text-[var(--text-main)]">N234PA</h4>
+                                <p class="text-sm text-[var(--text-muted)]">Piper Archer</p>
+                            </div>
+                            <span class="status-badge badge-warning text-[8px] sm:text-[10px]">In Shop</span>
+                        </div>
+                        <div class="mt-3 space-y-1 text-xs sm:text-sm">
+                            <div class="flex justify-between"><span class="text-[var(--text-muted)]">Last:</span><span class="font-bold">Oct 10</span></div>
+                            <div class="flex justify-between"><span class="text-[var(--text-muted)]">Next:</span><span class="font-bold">100 hrs</span></div>
+                        </div>
+                    </div>
+
+                    <div class="dash-card p-5 border-l-4 border-l-green-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="text-lg font-bold text-[var(--text-main)]">N345DA</h4>
+                                <p class="text-sm text-[var(--text-muted)]">Diamond DA40</p>
+                            </div>
+                            <span class="status-badge badge-success text-[8px] sm:text-[10px]">Airworthy</span>
+                        </div>
+                        <div class="mt-3 space-y-1 text-xs sm:text-sm">
+                            <div class="flex justify-between"><span class="text-[var(--text-muted)]">Last:</span><span class="font-bold">Oct 20</span></div>
+                            <div class="flex justify-between"><span class="text-[var(--text-muted)]">Next:</span><span class="font-bold">50 hrs</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 8: Settings -->
+            <div id="contentPanel-settings" class="tab-section">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-black text-[var(--text-main)] tracking-tight">System Settings</h2>
+                        <p class="text-xs sm:text-sm text-[var(--text-muted)]">Configure academy settings</p>
+                    </div>
+                    <button class="btn-sm btn-action flex items-center gap-1.5 text-xs"><i class="fas fa-save text-[10px]"></i> Save</button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                    <div class="lg:col-span-1 flex flex-col gap-1">
+                        <button class="text-left px-3 py-2.5 rounded-xl bg-aviation-gold text-[#0F4C5C] font-bold text-xs shadow-md transition-colors">General</button>
+                        <button class="text-left px-3 py-2.5 rounded-xl hover:bg-[var(--dash-bg)] text-[var(--text-muted)] hover:text-[var(--text-main)] font-bold text-xs transition-colors">Operations</button>
+                        <button class="text-left px-3 py-2.5 rounded-xl hover:bg-[var(--dash-bg)] text-[var(--text-muted)] hover:text-[var(--text-main)] font-bold text-xs transition-colors">Maintenance</button>
+                        <button class="text-left px-3 py-2.5 rounded-xl hover:bg-[var(--dash-bg)] text-[var(--text-muted)] hover:text-[var(--text-main)] font-bold text-xs transition-colors">Security</button>
+                    </div>
+
+                    <div class="lg:col-span-3 dash-card p-5 sm:p-6">
+                        <h3 class="text-base sm:text-lg font-bold text-[var(--text-main)] border-b border-[var(--border-color)] pb-3 mb-4">General Settings</h3>
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[9px] sm:text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1.5">Academy Name</label>
+                                    <input type="text" value="SkyWings Aviation Academy" class="w-full bg-[var(--dash-bg)] border border-[var(--border-color)] rounded-xl px-3 py-2 text-xs sm:text-sm text-[var(--text-main)] outline-none focus:border-aviation-gold transition-colors">
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] sm:text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1.5">FAA Certificate</label>
+                                    <input type="text" value="FA-12345678" class="w-full bg-[var(--dash-bg)] border border-[var(--border-color)] rounded-xl px-3 py-2 text-xs sm:text-sm text-[var(--text-main)] outline-none focus:border-aviation-gold transition-colors">
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] sm:text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1.5">Email</label>
+                                    <input type="email" value="info@skywingsaviation.com" class="w-full bg-[var(--dash-bg)] border border-[var(--border-color)] rounded-xl px-3 py-2 text-xs sm:text-sm text-[var(--text-main)] outline-none focus:border-aviation-gold transition-colors">
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] sm:text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1.5">Phone</label>
+                                    <input type="text" value="(888) 555-0123" class="w-full bg-[var(--dash-bg)] border border-[var(--border-color)] rounded-xl px-3 py-2 text-xs sm:text-sm text-[var(--text-main)] outline-none focus:border-aviation-gold transition-colors">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[9px] sm:text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1.5">Operation Hours</label>
+                                <input type="text" value="Mon–Fri: 7:00 AM – 7:00 PM | Sat: 8:00 AM – 5:00 PM" class="w-full bg-[var(--dash-bg)] border border-[var(--border-color)] rounded-xl px-3 py-2 text-xs sm:text-sm text-[var(--text-main)] outline-none focus:border-aviation-gold transition-colors">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // Toggle Mobile Sidebar
+        const toggleSidebar = () => {
+            const sidebar = document.getElementById('dashboardSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (sidebar && overlay) {
+                const isHidden = sidebar.classList.contains('-translate-x-full');
+                if (isHidden) {
+                    sidebar.classList.remove('-translate-x-full');
+                    sidebar.classList.add('translate-x-0');
+                    overlay.classList.remove('hidden');
+                    overlay.offsetHeight;
+                    overlay.classList.remove('opacity-0');
+                    overlay.classList.add('opacity-100');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    sidebar.classList.remove('translate-x-0');
+                    sidebar.classList.add('-translate-x-full');
+                    overlay.classList.remove('opacity-100');
+                    overlay.classList.add('opacity-0');
+                    document.body.style.overflow = '';
+                    setTimeout(() => { overlay.classList.add('hidden'); }, 300);
+                }
+            }
+        };
+
+        // Switch active tab
+        const switchAdminTab = (panelId, title) => {
+            const panels = document.querySelectorAll('.tab-section');
+            panels.forEach(panel => panel.classList.remove('active'));
+            
+            const targetPanel = document.getElementById(`contentPanel-${panelId}`);
+            if (targetPanel) targetPanel.classList.add('active');
+            
+            const buttons = document.querySelectorAll('#adminSidebarMenu .nav-item');
+            buttons.forEach(btn => {
+                btn.className = 'nav-item';
+            });
+            
+            const activeBtn = document.getElementById(`tabBtn-${panelId}`);
+            if (activeBtn) {
+                activeBtn.className = 'nav-item active';
+            }
+            
+            const activeLabel = document.getElementById('currentActiveTabName');
+            if (activeLabel) activeLabel.innerText = title;
+            
+            setTimeout(() => {
+                window.dispatchEvent(new Event('resize'));
+                if (panelId === 'revenue') {
+                    if (revenueChart) revenueChart.render();
+                    if (packagesChart) packagesChart.render();
+                }
+            }, 150);
+            
+            // Close sidebar on mobile
+            if (window.innerWidth <= 1024) {
+                const sidebar = document.getElementById('dashboardSidebar');
+                if (sidebar && sidebar.classList.contains('translate-x-0')) {
+                    toggleSidebar();
+                }
+            }
+        };
+
+        // Notification Toggle
+        const toggleNotificationDropdown = (event) => {
+            event.stopPropagation();
+            const dropdown = document.getElementById('notificationDropdown');
+            if (dropdown) dropdown.classList.toggle('hidden');
+        };
+
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('notificationDropdown');
+            const bellBtn = document.getElementById('notificationBellBtn');
+            if (dropdown && !dropdown.classList.contains('hidden') && !dropdown.contains(e.target) && !bellBtn.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        // Theme Toggle
+        const themeBtn = document.getElementById('theme-toggle');
+        const themeIcon = themeBtn?.querySelector('i');
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        
+        const applyTheme = (isDark) => {
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                if (themeIcon) { themeIcon.classList.remove('fa-moon'); themeIcon.classList.add('fa-sun'); }
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                if (themeIcon) { themeIcon.classList.remove('fa-sun'); themeIcon.classList.add('fa-moon'); }
+                localStorage.setItem('theme', 'light');
+            }
+        };
+        applyTheme(savedTheme === 'dark');
+        
+        if (themeBtn) {
+            themeBtn.addEventListener('click', () => {
+                applyTheme(!document.documentElement.classList.contains('dark'));
+            });
+        }
+
+        // RTL Toggle
+        const rtlBtn = document.getElementById('rtl-toggle');
+        const savedDir = localStorage.getItem('dir') || 'ltr';
+        if (savedDir === 'rtl') { document.documentElement.setAttribute('dir', 'rtl'); }
+        if (rtlBtn) {
+            rtlBtn.addEventListener('click', () => {
+                const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
+                document.documentElement.setAttribute('dir', isRTL ? 'ltr' : 'rtl');
+                localStorage.setItem('dir', isRTL ? 'ltr' : 'rtl');
+            });
+        }
+
+        // Charts
+        let revenueChart = null;
+        let packagesChart = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Revenue Chart
+            const revenueOptions = {
+                chart: { type: 'area', height: 220, toolbar: { show: false }, fontFamily: 'Jost, sans-serif' },
+                series: [{ name: 'Revenue', data: [8200, 9400, 11200, 14800, 15600, 18200] }],
+                colors: ['#D4AF37'],
+                stroke: { curve: 'smooth', width: 2.5 },
+                dataLabels: { enabled: false },
+                xaxis: { categories: ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'], labels: { style: { colors: '#94a3b8', fontSize: '8px', fontWeight: 600 } } },
+                yaxis: { labels: { style: { colors: '#94a3b8', fontSize: '8px', fontWeight: 600 }, formatter: v => '$' + v } },
+                grid: { borderColor: 'rgba(212, 175, 55, 0.08)', strokeDashArray: 3 },
+                tooltip: { theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light' }
+            };
+            const revenueContainer = document.querySelector('#revenueChartContainer');
+            if (revenueContainer) {
+                revenueChart = new ApexCharts(revenueContainer, revenueOptions);
+                revenueChart.render();
+            }
+
+            // Packages Chart
+            const packagesOptions = {
+                chart: { type: 'donut', height: 220, fontFamily: 'Jost, sans-serif' },
+                series: [45, 30, 25],
+                labels: ['Flight Training', 'Aircraft Rental', 'Ground School'],
+                colors: ['#D4AF37', '#0F4C5C', '#B8960F'],
+                dataLabels: { enabled: false },
+                legend: {
+                    position: 'bottom',
+                    horizontalAlign: 'center',
+                    labels: { colors: '#94a3b8' },
+                    fontSize: '9px',
+                    fontWeight: 600,
+                    itemMargin: { horizontal: 8, vertical: 4 }
+                },
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '70%',
+                            labels: {
+                                show: true,
+                                name: { show: true, color: '#94a3b8', fontSize: '8px', fontWeight: 600 },
+                                value: { show: true, color: '#D4AF37', fontSize: '14px', fontWeight: 900 },
+                                total: { show: true, label: 'Split', color: '#94a3b8', fontSize: '8px', fontWeight: 600 }
+                            }
+                        }
+                    }
+                },
+                tooltip: { theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light' }
+            };
+            const packagesContainer = document.querySelector('#packagesChartContainer');
+            if (packagesContainer) {
+                packagesChart = new ApexCharts(packagesContainer, packagesOptions);
+                packagesChart.render();
+            }
+        });
+    </script>
+</body>
+</html>
